@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Numpad } from '../components/Numpad';
 import { ProblemDisplay } from '../components/ProblemDisplay';
 import { TimerBar } from '../components/TimerBar';
@@ -28,8 +28,12 @@ export function TrialScreen({
     if (config.mode === 'timed' && timer.done && engine.started) engine.finish();
   }, [config.mode, timer.done, engine]);
 
+  const firedRef = useRef(false);
   useEffect(() => {
-    if (engine.finished && engine.result) onFinish(engine.result);
+    if (engine.finished && engine.result && !firedRef.current) {
+      firedRef.current = true;
+      onFinish(engine.result);
+    }
   }, [engine.finished, engine.result, onFinish]);
 
   useEffect(() => {
