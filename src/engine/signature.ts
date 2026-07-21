@@ -47,6 +47,12 @@ export function decodeChallenge(param: string): Config | null {
     if (!Array.isArray(obj.operations) || obj.operations.length === 0) return null;
     if (obj.mode !== 'timed' && obj.mode !== 'fixed') return null;
     if (typeof obj.seed !== 'number' || !obj.ranges) return null;
+    for (const op of obj.operations) {
+      if (!OPERATIONS.includes(op)) return null;
+      const r = obj.ranges[op];
+      if (!r || typeof r.min !== 'number' || typeof r.max !== 'number') return null;
+    }
+    if (typeof obj.durationSec !== 'number' || typeof obj.problemCount !== 'number') return null;
     return obj;
   } catch {
     return null;

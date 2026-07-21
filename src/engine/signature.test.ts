@@ -42,3 +42,17 @@ test('decodeChallenge returns null on garbage', () => {
   expect(decodeChallenge('not-base64-$$$')).toBeNull();
   expect(decodeChallenge('')).toBeNull();
 });
+
+test('decodeChallenge rejects a config missing ranges for an enabled operation', () => {
+  const bad = {
+    operations: ['add'],
+    difficulty: 'medium',
+    ranges: {},
+    allowNegatives: false,
+    mode: 'timed',
+    durationSec: 60,
+    problemCount: 20,
+    seed: 1,
+  } as unknown as Config;
+  expect(decodeChallenge(encodeChallenge(bad))).toBeNull();
+});
