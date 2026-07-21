@@ -6,11 +6,13 @@ export function LeaderboardScreen({
   mode,
   isRemote,
   onBack,
+  label,
 }: {
   signature: string;
   mode: Mode;
   isRemote: boolean;
   onBack: () => void;
+  label?: string;
 }) {
   const { rows, loading } = useLeaderboard(signature, mode);
 
@@ -25,7 +27,7 @@ export function LeaderboardScreen({
         {isRemote && <span className="w-16" />}
       </header>
 
-      <p className="text-center text-xs text-slate-400">{signature}</p>
+      <p className="text-center text-xs text-slate-400">{label ?? signature}</p>
 
       {loading ? (
         <p className="text-center text-slate-500">Loading…</p>

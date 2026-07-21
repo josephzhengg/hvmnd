@@ -26,3 +26,13 @@ test('a malformed challenge link does not crash and stays on config', () => {
   expect(screen.getByRole('button', { name: /start/i })).toBeInTheDocument();
   window.location.hash = '';
 });
+
+test('a malformed challenge link shows a dismissible notice', async () => {
+  window.location.hash = '#/play?c=%zz';
+  render(<App />);
+  const alert = screen.getByRole('alert');
+  expect(alert).toHaveTextContent(/invalid/i);
+  await userEvent.click(screen.getByRole('button', { name: /dismiss/i }));
+  expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  window.location.hash = '';
+});

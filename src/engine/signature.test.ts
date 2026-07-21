@@ -1,4 +1,4 @@
-import { modeSignature, encodeChallenge, decodeChallenge } from './signature';
+import { modeSignature, encodeChallenge, decodeChallenge, describeConfig } from './signature';
 import { rangesForDifficulty } from './problems';
 import type { Config } from './types';
 
@@ -41,6 +41,13 @@ test('challenge encode/decode round-trips including seed', () => {
 test('decodeChallenge returns null on garbage', () => {
   expect(decodeChallenge('not-base64-$$$')).toBeNull();
   expect(decodeChallenge('')).toBeNull();
+});
+
+test('describeConfig renders a human-readable, operation-order-independent label', () => {
+  expect(describeConfig(cfg({ operations: ['mul', 'add'], mode: 'timed', durationSec: 60, difficulty: 'medium' })))
+    .toBe('60s · + × · Medium');
+  expect(describeConfig(cfg({ mode: 'fixed', problemCount: 20, difficulty: 'hard' })))
+    .toBe('20 problems · + × · Hard');
 });
 
 test('decodeChallenge rejects a config missing ranges for an enabled operation', () => {

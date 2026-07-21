@@ -14,3 +14,14 @@ test('numpad reports digit, clear, and submit presses', async () => {
   await userEvent.click(screen.getByRole('button', { name: /enter/i }));
   expect(onSubmit).toHaveBeenCalled();
 });
+
+test('the sign-toggle key is shown only when onMinus is provided and fires it', async () => {
+  const noop = () => {};
+  const { rerender } = render(<Numpad onDigit={noop} onClear={noop} onSubmit={noop} />);
+  expect(screen.queryByRole('button', { name: /toggle sign/i })).not.toBeInTheDocument();
+
+  const onMinus = vi.fn();
+  rerender(<Numpad onDigit={noop} onClear={noop} onSubmit={noop} onMinus={onMinus} />);
+  await userEvent.click(screen.getByRole('button', { name: /toggle sign/i }));
+  expect(onMinus).toHaveBeenCalled();
+});

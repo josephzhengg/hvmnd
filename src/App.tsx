@@ -4,7 +4,7 @@ import { TrialScreen } from './screens/TrialScreen';
 import { ResultsScreen } from './screens/ResultsScreen';
 import { LeaderboardScreen } from './screens/LeaderboardScreen';
 import { usePreferences } from './hooks/usePreferences';
-import { decodeChallenge, modeSignature } from './engine/signature';
+import { decodeChallenge, describeConfig, modeSignature } from './engine/signature';
 import { isRemoteConfigured } from './storage';
 import type { Config, Result } from './engine/types';
 
@@ -25,20 +25,42 @@ export default function App() {
   const [screen, setScreen] = useState<Screen>('config');
   const [config, setConfig] = useState<Config>(defaultConfig);
   const [result, setResult] = useState<Result | null>(null);
+  const [badLink, setBadLink] = useState(false);
 
   useEffect(() => {
+    const hadParam = /#\/play\?c=/.test(window.location.hash);
     const challenge = challengeFromHash();
     if (challenge) {
       setConfig(challenge);
       setScreen('trial');
-      window.history.replaceState(null, '', window.location.pathname);
+    } else if (hadParam) {
+      setBadLink(true);
     }
+    if (hadParam) window.history.replaceState(null, '', window.location.pathname);
   }, []);
 
   const signature = useMemo(() => modeSignature(config), [config]);
 
   return (
     <div className="min-h-full bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-50">
+      {screen === 'config' && badLink && (
+        <div className="mx-auto max-w-md px-4 pt-4">
+          <div
+            role="alert"
+            className="flex items-center justify-between gap-3 rounded-lg bg-amber-100 px-3 py-2 text-sm text-amber-800"
+          >
+            <span>That challenge link was invalid — start a fresh trial below.</span>
+            <button
+              type="button"
+              onClick={() => setBadLink(false)}
+              className="font-semibold underline"
+            >
+              Dismiss
+            </button>
+          </div>
+        </div>
+      )}
+
       {screen === 'config' && (
         <ConfigScreen
           initial={config}
@@ -75,6 +97,7 @@ export default function App() {
       {screen === 'leaderboard' && (
         <LeaderboardScreen
           signature={signature}
+          label={describeConfig(config)}
           mode={config.mode}
           isRemote={isRemoteConfigured}
           onBack={() => setScreen(result ? 'results' : 'config')}

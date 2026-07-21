@@ -78,6 +78,14 @@ export function TrialScreen({
           onDigit={(d) => engine.setInput(engine.input + d)}
           onClear={() => engine.setInput(engine.input.slice(0, -1))}
           onSubmit={engine.submit}
+          onMinus={
+            config.allowNegatives
+              ? () =>
+                  engine.setInput(
+                    engine.input.startsWith('-') ? engine.input.slice(1) : '-' + engine.input,
+                  )
+              : undefined
+          }
         />
       )}
     </div>

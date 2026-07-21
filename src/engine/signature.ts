@@ -1,4 +1,4 @@
-import { OPERATIONS } from './types';
+import { OPERATIONS, OP_SYMBOL } from './types';
 import type { Config, Operation } from './types';
 
 function toBase64Url(s: string): string {
@@ -31,6 +31,19 @@ export function modeSignature(config: Config): string {
   }
   const neg = config.allowNegatives ? 'neg' : 'pos';
   return `${ops}|${diff}|${length}|${neg}`;
+}
+
+export function describeConfig(config: Config): string {
+  const ops = sortedOps(config.operations)
+    .map((op) => OP_SYMBOL[op])
+    .join(' ');
+  const length =
+    config.mode === 'timed' ? `${config.durationSec}s` : `${config.problemCount} problems`;
+  const diff =
+    config.difficulty === 'custom'
+      ? 'Custom'
+      : config.difficulty.charAt(0).toUpperCase() + config.difficulty.slice(1);
+  return `${length} · ${ops} · ${diff}`;
 }
 
 const MAX_PARAM_LENGTH = 2000;
