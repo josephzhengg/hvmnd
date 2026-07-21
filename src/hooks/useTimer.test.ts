@@ -19,3 +19,22 @@ test('does not advance while paused', () => {
   expect(result.current.remainingMs).toBe(2000);
   expect(result.current.done).toBe(false);
 });
+
+test('reset while paused restores full duration', () => {
+  const { result } = renderHook(() => useTimer(5, false));
+  act(() => { result.current.reset(); });
+  expect(result.current.remainingMs).toBe(5000);
+  expect(result.current.done).toBe(false);
+});
+
+test('reset while running restores full duration and keeps counting', () => {
+  const { result } = renderHook(() => useTimer(10, true));
+  act(() => { vi.advanceTimersByTime(3000); });
+  expect(result.current.remainingMs).toBe(7000);
+  act(() => { result.current.reset(); });
+  expect(result.current.remainingMs).toBe(10000);
+  expect(result.current.done).toBe(false);
+  act(() => { vi.advanceTimersByTime(1000); });
+  expect(result.current.remainingMs).toBe(9000);
+  expect(result.current.done).toBe(false);
+});

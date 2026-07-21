@@ -5,8 +5,9 @@ export function useTimer(durationSec: number, running: boolean) {
   const endRef = useRef<number | null>(null);
 
   const reset = useCallback(() => {
-    endRef.current = null;
-    setRemainingMs(durationSec * 1000);
+    const full = durationSec * 1000;
+    endRef.current = Date.now() + full;
+    setRemainingMs(full);
   }, [durationSec]);
 
   useEffect(() => {
