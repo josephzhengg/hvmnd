@@ -12,7 +12,12 @@ type Screen = 'config' | 'trial' | 'results' | 'leaderboard';
 
 function challengeFromHash(): Config | null {
   const m = window.location.hash.match(/#\/play\?c=([^&]+)/);
-  return m ? decodeChallenge(decodeURIComponent(m[1])) : null;
+  if (!m) return null;
+  try {
+    return decodeChallenge(decodeURIComponent(m[1]));
+  } catch {
+    return null;
+  }
 }
 
 export default function App() {
