@@ -19,7 +19,10 @@ function initialPrefs(): Preferences {
   };
   try {
     const raw = localStorage.getItem(KEY);
-    return raw ? { ...fallback, ...(JSON.parse(raw) as Partial<Preferences>) } : fallback;
+    if (!raw) return fallback;
+    const merged = { ...fallback, ...(JSON.parse(raw) as Partial<Preferences>) };
+    if (merged.theme !== 'light' && merged.theme !== 'dark') merged.theme = fallback.theme;
+    return merged;
   } catch {
     return fallback;
   }
@@ -29,7 +32,11 @@ export function usePreferences() {
   const [prefs, setState] = useState<Preferences>(initialPrefs);
 
   useEffect(() => {
-    localStorage.setItem(KEY, JSON.stringify(prefs));
+    try {
+      localStorage.setItem(KEY, JSON.stringify(prefs));
+    } catch {
+      // Ignore storage write failures (quota/private mode); theme still applies.
+    }
     document.documentElement.classList.toggle('dark', prefs.theme === 'dark');
   }, [prefs]);
 

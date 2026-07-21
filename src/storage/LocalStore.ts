@@ -13,14 +13,20 @@ export class LocalStore implements ScoreStore {
   private readAll(): ScoreRow[] {
     try {
       const raw = localStorage.getItem(KEY);
-      return raw ? (JSON.parse(raw) as ScoreRow[]) : [];
+      const parsed = raw ? JSON.parse(raw) : [];
+      return Array.isArray(parsed) ? (parsed as ScoreRow[]) : [];
     } catch {
       return [];
     }
   }
 
   private writeAll(rows: ScoreRow[]): void {
-    localStorage.setItem(KEY, JSON.stringify(rows));
+    try {
+      localStorage.setItem(KEY, JSON.stringify(rows));
+    } catch {
+      // Storage full or unavailable (e.g. Safari private mode); scores remain
+      // in memory for this session rather than crashing the submit flow.
+    }
   }
 
   async submitScore(input: SubmitScoreInput): Promise<ScoreRow> {

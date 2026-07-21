@@ -20,13 +20,20 @@ export class SupabaseStore implements ScoreStore {
   }
 
   async getLeaderboard(signature: string, mode: Mode, limit = 50): Promise<ScoreRow[]> {
-    const { data, error } = await this.client
+    // Apply the full tiebreak in the query so the DB returns the true top-N
+    // (and getPersonalBest's limit=1 the true best) before truncation, not an
+    // arbitrary set among tied scores. The client re-sort keeps ordering exact.
+    let query = this.client
       .from(TABLE)
       .select('*')
       .eq('signature', signature)
       .eq('mode', mode)
-      .order('score', { ascending: false })
-      .limit(limit);
+      .order('score', { ascending: false });
+    query =
+      mode === 'timed'
+        ? query.order('accuracy', { ascending: false }).order('total_ms', { ascending: true })
+        : query.order('total_ms', { ascending: true });
+    const { data, error } = await query.limit(limit);
     if (error || !data) throw new Error(error?.message ?? 'leaderboard failed');
     return (data as ScoreRow[]).slice().sort((a, b) => compareRank(mode, a, b));
   }
