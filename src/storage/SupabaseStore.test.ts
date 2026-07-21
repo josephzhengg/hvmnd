@@ -1,4 +1,4 @@
-import { test, expect, vi } from 'vitest';
+import { test, expect } from 'vitest';
 import { SupabaseStore } from './SupabaseStore';
 
 function fakeClient(rows: any[]) {
