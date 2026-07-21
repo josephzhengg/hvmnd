@@ -26,6 +26,10 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      # Gate the deploy on the test suite; a failure stops the job before build.
+      # Tests pin VITE_SUPABASE_* empty (vite.config.ts), so they never touch a
+      # real backend even though the build secrets are present in this job.
+      - run: npm test
       - run: npm run build
         env:
           # Supabase creds are inlined at build time (Vite VITE_* vars).
